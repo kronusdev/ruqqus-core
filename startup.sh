@@ -1,13 +1,19 @@
 #!/bin/bash
-pkill gunicorn
-cd /vidya.cafe
-sudo cp vidya.cafe/nginx.txt /etc/nginx/sites-available/vidya.cafe.conf
+cd ~/app
+sudo cp ruqqus-core/nginx.txt /etc/nginx/sites-available/ruqqus.com.conf
 sudo nginx -s reload
-. ./venv/bin/activate
-. ./env.sh
-cd /vidya.cafe/vidya.cafe
-pip install -r requirements.txt
-export PYTHONPATH=$PYTHONPATH:/vidya.cafe/vidya.cafe
-cd /vidya.cafe/vidya.cafe
+source venv/bin/activate
+source env.sh
+cd ~/app/ruqqus-core
+pip3 install -r requirements.txt
+export PYTHONPATH=$PYTHONPATH:~/app
+export S3_BUCKET_NAME=i.ruqqus.com
+export CACHE_TYPE="redis"
+export HCAPTCHA_SITEKEY="22beca86-6e93-421c-8510-f07c6914dadb"
+cd ~/app/ruqqus-core
+
+echo "starting background worker"
+python scripts/recomputes.py
+
 echo "starting regular workers"
-NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn files.__main__:app -k gevent -w $WEB_CONCURRENCY --max-requests 10000 --max-requests-jitter 500 --reload --bind 0.0.0.0:5000
+NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn files.__main__:app -k gevent -w $WEB_CONCURRENCY --worker-connections $WORKER_CONNECTIONS --preload --max-requests 10000 --max-requests-jitter 500 --bind 127.0.0.1:5000

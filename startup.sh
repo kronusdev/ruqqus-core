@@ -1,10 +1,10 @@
 #!/bin/bash
-cd ~/app
-sudo cp ruqqus-core/nginx.txt /etc/nginx/sites-available/ruqqus.com.conf
+cd ~/app/ruqqus-core
+sudo cp nginx.txt /etc/nginx/sites-available/ruqqus.com.conf
 sudo nginx -s reload
 source venv/bin/activate
 source env.sh
-cd ~/app/ruqqus-core
+
 pip3 install -r requirements.txt
 export PYTHONPATH=$PYTHONPATH:~/app
 export S3_BUCKET_NAME=i.ruqqus.com

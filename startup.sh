@@ -15,7 +15,7 @@ export HCAPTCHA_SITEKEY="22beca86-6e93-421c-8510-f07c6914dadb"
 cd ~/app/ruqqus-core
 
 echo "Starting Background Worker"
-python scripts/recomputes.py
+python files/scripts/recomputes.py
 
 echo "Starting Regular Workers"
 NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn files.__main__:app -k gevent -w $WEB_CONCURRENCY --worker-connections $WORKER_CONNECTIONS --preload --max-requests 10000 --max-requests-jitter 500 --bind 127.0.0.1:5000

@@ -1,7 +1,7 @@
 #!/bin/bash
 cd ~/app/ruqqus-core
-echo "Pulling in recent changes."
-git pull
+#echo "Pulling in recent changes."
+#git pull
 sudo cp nginx.txt /etc/nginx/sites-available/ruqqus.com.conf
 sudo nginx -s reload
 source venv/bin/activate

@@ -3,7 +3,7 @@ cd ~/app/ruqqus-core
 sudo cp nginx.txt /etc/nginx/sites-available/ruqqus.com.conf
 sudo nginx -s reload
 source venv/bin/activate
-source env.sh
+source ~/env.sh
 
 pip3 install -r requirements.txt
 export PYTHONPATH=$PYTHONPATH:~/app

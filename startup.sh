@@ -8,7 +8,7 @@ source venv/bin/activate
 source ~/env.sh
 
 pip3 install -r requirements.txt
-export PYTHONPATH=$PYTHONPATH:~/app
+export PYTHONPATH=$PYTHONPATH:~/app/ruqqus-core
 export S3_BUCKET_NAME=i.ruqqus.com
 export CACHE_TYPE="redis"
 export HCAPTCHA_SITEKEY="22beca86-6e93-421c-8510-f07c6914dadb"

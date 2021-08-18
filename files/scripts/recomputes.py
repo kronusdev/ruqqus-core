@@ -1,5 +1,5 @@
-from ruqqus.__main__ import db_session
-from ruqqus.classes import *
+from files.__main__ import db_session
+from files.classes import *
 
 import time
 import gevent

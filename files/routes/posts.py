@@ -22,6 +22,7 @@ from .front import frontlist
 site = environ.get("DOMAIN").strip()
 
 @app.post("/publish/<pid>")
+@app.post("/api/v2/post/<pid>/publish")
 @is_not_banned
 @validate_formkey
 def publish(pid, v):
@@ -46,6 +47,8 @@ def submit_get(v):
 
 @app.get("/post/<pid>")
 @app.get("/post/<pid>/<anything>")
+@app.get("/api/v2/post/<pid>")
+@app.get("/api/v2/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
 	try: pid = int(pid)
@@ -203,6 +206,7 @@ def post_id(pid, anything=None, v=None):
 
 
 @app.post("/edit_post/<pid>")
+@app.post("/api/v2/post/<pid>/edit_post/")
 @is_not_banned
 @validate_formkey
 def edit_post(pid, v):
@@ -327,6 +331,7 @@ def edit_post(pid, v):
 	return redirect(p.permalink)
 
 @app.get("/submit/title")
+@app.get("/api/v2/post/submit/title")
 @limiter.limit("6/minute")
 @is_not_banned
 def get_post_title(v):
@@ -495,6 +500,7 @@ def embed_comment_cid(cid, pid=None):
 
 
 @app.post("/submit")
+@app.post("/api/v2/post/submit")
 @limiter.limit("6/minute")
 @is_not_banned
 @validate_formkey
@@ -927,6 +933,7 @@ def submit_post(v):
 
 
 @app.post("/delete_post/<pid>")
+@app.post("/api/v2/post/<pid>/delete")
 @auth_required
 @validate_formkey
 def delete_post_pid(pid, v):
@@ -946,6 +953,7 @@ def delete_post_pid(pid, v):
 	return "", 204
 
 @app.post("/undelete_post/<pid>")
+@app.post("/api/v2/post/<pid>/undelete")
 @auth_required
 @validate_formkey
 def undelete_post_pid(pid, v):
@@ -960,6 +968,7 @@ def undelete_post_pid(pid, v):
 
 
 @app.post("/toggle_comment_nsfw/<cid>")
+@app.post("/api/v2/post/<cid>/toggle_post_nsfw")
 @is_not_banned
 @validate_formkey
 def toggle_comment_nsfw(cid, v):
@@ -971,6 +980,7 @@ def toggle_comment_nsfw(cid, v):
 	return "", 204
 
 @app.post("/toggle_post_nsfw/<pid>")
+@app.post("/api/v2/post/<pid>/toggle_post_nsfw")
 @is_not_banned
 @validate_formkey
 def toggle_post_nsfw(pid, v):
@@ -994,6 +1004,7 @@ def toggle_post_nsfw(pid, v):
 	return "", 204
 
 @app.post("/save_post/<pid>")
+@app.post("/api/v2/post/<pid>/save_post/")
 @auth_required
 @validate_formkey
 def save_post(pid, v):
@@ -1010,6 +1021,7 @@ def save_post(pid, v):
 	return "", 204
 
 @app.post("/unsave_post/<pid>")
+@app.post("/api/v2/post/<pid>/unsave_post/")
 @auth_required
 @validate_formkey
 def unsave_post(pid, v):

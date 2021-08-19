@@ -19,6 +19,7 @@ from files.__main__ import app, cache
 from .front import frontlist
 
 @app.get("/admin/shadowbanned")
+@app.get("/api/v2/admin/shadowbanned")
 @auth_required
 def shadowbanned(v):
 	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
@@ -28,6 +29,7 @@ def shadowbanned(v):
 
 
 @app.get("/admin/agendaposters")
+@app.get("/api/v2/admin/agendaposters")
 @auth_required
 def agendaposters(v):
 	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
@@ -37,6 +39,7 @@ def agendaposters(v):
 
 
 @app.get("/admin/flagged/posts")
+@app.get("/api/v2/admin/flagged/posts")
 @admin_level_required(3)
 def flagged_posts(v):
 
@@ -60,6 +63,7 @@ def flagged_posts(v):
 
 
 @app.get("/admin/image_posts")
+@app.get("/api/v2/admin/image_posts")
 @admin_level_required(3)
 def image_posts_listing(v):
 
@@ -77,6 +81,7 @@ def image_posts_listing(v):
 
 
 @app.get("/admin/flagged/comments")
+@app.get("/api/v2/admin/flagged/comments")
 @admin_level_required(3)
 def flagged_comments(v):
 
@@ -103,6 +108,7 @@ def flagged_comments(v):
 						   standalone=True)
 
 @app.get("/admin")
+@app.get("/api/v2/admin")
 @admin_level_required(3)
 def admin_home(v):
 	with open('./disablesignups', 'r') as f:
@@ -111,6 +117,7 @@ def admin_home(v):
 
 
 @app.post("/admin/disablesignups")
+@app.post("/api/v2/admin/disablesignups")
 @admin_level_required(6)
 @validate_formkey
 def disablesignups(v):
@@ -122,6 +129,7 @@ def disablesignups(v):
 
 
 @app.get("/admin/badge_grant")
+@app.get("/api/v2/admin/badge_grant")
 @admin_level_required(4)
 def badge_grant_get(v):
 
@@ -143,6 +151,7 @@ def badge_grant_get(v):
 
 
 @app.post("/admin/badge_grant")
+@app.post("/api/v2/admin/badge_grant")
 @admin_level_required(4)
 @validate_formkey
 def badge_grant_post(v):
@@ -225,6 +234,7 @@ def badge_grant_post(v):
 
 
 @app.get("/admin/users")
+@app.get("/api/v2/admin/users")
 @admin_level_required(2)
 def users_list(v):
 
@@ -248,6 +258,7 @@ def users_list(v):
 
 
 @app.get("/admin/content_stats")
+@app.get("/api/v2/admin/content_stats")
 @admin_level_required(2)
 def participation_stats(v):
 
@@ -283,6 +294,7 @@ def participation_stats(v):
 	return render_template("admin/content_stats.html", v=v, title="Content Statistics", data=data)
 
 @app.get("/admin/alt_votes")
+@app.get("/api/v2/admin/alt_votes")
 @admin_level_required(4)
 def alt_votes_get(v):
 
@@ -392,6 +404,7 @@ def alt_votes_get(v):
 
 
 @app.post("/admin/link_accounts")
+@app.post("/api/v2/admin/link_accounts")
 @admin_level_required(4)
 @validate_formkey
 def admin_link_accounts(v):
@@ -412,6 +425,7 @@ def admin_link_accounts(v):
 
 
 @app.get("/admin/removed")
+@app.get("/api/v2/admin/removed")
 @admin_level_required(3)
 def admin_removed(v):
 
@@ -437,6 +451,7 @@ def admin_removed(v):
 
 
 @app.post("/admin/image_purge")
+@app.post("/api/v2/admin/image_purge")
 @admin_level_required(5)
 def admin_image_purge(v):
 	
@@ -452,6 +467,7 @@ def admin_image_purge(v):
 
 
 @app.post("/admin/image_ban")
+@app.post("/api/v2/admin/image_ban")
 @admin_level_required(4)
 @validate_formkey
 def admin_image_ban(v):
@@ -505,6 +521,7 @@ def admin_image_ban(v):
 
 
 @app.post("/agendaposter/<user_id>")
+@app.post("/api/v2/agendaposter/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def agendaposter(user_id, v):
@@ -547,6 +564,7 @@ def agendaposter(user_id, v):
 		return redirect(user.url)
 
 @app.post("/shadowban/<user_id>")
+@app.post("/api/v2/shadowban/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def shadowban(user_id, v):
@@ -571,6 +589,7 @@ def shadowban(user_id, v):
 
 
 @app.post("/unshadowban/<user_id>")
+@app.post("/api/v2/admin/unshadowban/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def unshadowban(user_id, v):
@@ -595,6 +614,7 @@ def unshadowban(user_id, v):
 
 
 @app.post("/admin/title_change/<user_id>")
+@app.post("/api/v2/admin/title_change/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def admin_title_change(user_id, v):
@@ -627,6 +647,7 @@ def admin_title_change(user_id, v):
 	return (redirect(user.url), user)
 
 @app.post("/ban_user/<user_id>")
+@app.post("/api/v2/admin/ban_user/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def ban_user(user_id, v):
@@ -684,6 +705,7 @@ def ban_user(user_id, v):
 
 
 @app.post("/unban_user/<user_id>")
+@app.post("/api/v2/admin/unban_user/<user_id>")
 @admin_level_required(6)
 @validate_formkey
 def unban_user(user_id, v):
@@ -715,6 +737,7 @@ def unban_user(user_id, v):
 	return {"message": f"@{user.username} was unbanned"}
 
 @app.post("/ban_post/<post_id>")
+@app.post("/api/v2/admin/ban_post/<post_id>")
 @admin_level_required(3)
 @validate_formkey
 def ban_post(post_id, v):
@@ -754,6 +777,7 @@ def ban_post(post_id, v):
 
 
 @app.post("/unban_post/<post_id>")
+@app.post("/api/v2/admin/unban_post/<post_id>")
 @admin_level_required(3)
 @validate_formkey
 def unban_post(post_id, v):
@@ -782,6 +806,7 @@ def unban_post(post_id, v):
 
 
 @app.post("/distinguish/<post_id>")
+@app.post("/api/v2/admin/distinguish/<post_id>")
 @admin_level_required(1)
 @validate_formkey
 def api_distinguish_post(post_id, v):
@@ -805,6 +830,7 @@ def api_distinguish_post(post_id, v):
 
 
 @app.post("/sticky/<post_id>")
+@app.post("/api/v2/admin/sticky/<post_id>")
 @admin_level_required(3)
 def api_sticky_post(post_id, v):
 
@@ -819,6 +845,7 @@ def api_sticky_post(post_id, v):
 	return "", 204
 
 @app.post("/pin/<post_id>")
+@app.post("/api/v2/pin/<post_id>")
 @auth_required
 def api_pin_post(post_id, v):
 
@@ -830,6 +857,7 @@ def api_pin_post(post_id, v):
 	return "", 204
 
 @app.post("/ban_comment/<c_id>")
+@app.post("/api/v2/admin/ban_comment/<c_id>")
 @admin_level_required(1)
 def api_ban_comment(c_id, v):
 
@@ -851,6 +879,7 @@ def api_ban_comment(c_id, v):
 
 
 @app.post("/unban_comment/<c_id>")
+@app.post("/api/v2/admin/unban_comment/<c_id>")
 @admin_level_required(1)
 def api_unban_comment(c_id, v):
 
@@ -875,6 +904,7 @@ def api_unban_comment(c_id, v):
 
 
 @app.post("/distinguish_comment/<c_id>")
+@app.post("/api/v2/distinguish_comment/<c_id>")
 @auth_required
 def admin_distinguish_comment(c_id, v):
 	
@@ -901,6 +931,7 @@ def admin_distinguish_comment(c_id, v):
 	return html
 
 @app.get("/admin/refund")
+@app.get("/api/v2/admin/refund")
 @admin_level_required(6)
 def refund(v):
 	for u in g.db.query(User).all():
@@ -913,6 +944,7 @@ def refund(v):
 
 
 @app.get("/admin/dump_cache")
+@app.get("/api/v2/admin/dump_cache")
 @admin_level_required(6)
 def admin_dump_cache(v):
 	cache.clear()
@@ -920,6 +952,7 @@ def admin_dump_cache(v):
 
 
 @app.get("/admin/banned_domains/")
+@app.get("/api/v2/admin/banned_domains/")
 @admin_level_required(4)
 def admin_banned_domains(v):
 
@@ -927,6 +960,7 @@ def admin_banned_domains(v):
 	return render_template("admin/banned_domains.html", v=v, banned_domains=banned_domains)
 
 @app.post("/admin/banned_domains")
+@app.post("/api/v2/admin/banned_domains")
 @admin_level_required(4)
 @validate_formkey
 def admin_toggle_ban_domain(v):
@@ -945,6 +979,7 @@ def admin_toggle_ban_domain(v):
 
 
 @app.post("/admin/nuke_user")
+@app.post("/api/v2/admin/nuke_user")
 @admin_level_required(4)
 @validate_formkey
 def admin_nuke_user(v):
@@ -975,6 +1010,7 @@ def admin_nuke_user(v):
 	return redirect(user.url)
 
 @app.post("/admin/unnuke_user")
+@app.post("/api/v2/admin/unnuke_user")
 @admin_level_required(4)
 @validate_formkey
 def admin_nunuke_user(v):
@@ -1005,6 +1041,7 @@ def admin_nunuke_user(v):
 	return redirect(user.url)
 	
 @app.get("/user_stat_data")
+@app.get("/api/v2/admin/user_stat_data")
 @admin_level_required(2)
 @cache.memoize(timeout=60)
 def user_stat_data(v):

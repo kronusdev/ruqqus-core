@@ -8,6 +8,7 @@ from yattag import Doc
 from files.__main__ import app
 
 @app.get('/rss/<sort>/<t>')
+@app.get('/api/v2/feed/rss/<sort>/<t>')
 def feeds_user(sort='hot', t='all'):
 
 	page = int(request.args.get("page", 1))

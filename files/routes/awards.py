@@ -33,6 +33,7 @@ ALLOW_MULTIPLE = (
 
 
 @app.get("/awards")
+@app.get("/api/v2/user/awards")
 @auth_required
 def get_awards(v):
 
@@ -46,6 +47,7 @@ def get_awards(v):
 
 
 @app.put("/post/<pid>/awards")
+@app.put("/api/v2/post/<pid>/awards")
 @auth_required
 @validate_formkey
 def award_post(pid, v):
@@ -108,6 +110,7 @@ def award_post(pid, v):
 
 
 @app.put("/comment/<cid>/awards")
+@app.put("/api/v2/comment/<cid>/awards")
 @auth_required
 @validate_formkey
 def award_comment(cid, v):
@@ -168,6 +171,7 @@ def award_comment(cid, v):
     return "", 204
 
 @app.get("/admin/user_award")
+@app.get("/api/v2/admin/user_award")
 @auth_required
 def admin_userawards_get(v):
 
@@ -177,6 +181,7 @@ def admin_userawards_get(v):
     return render_template("admin/user_award.html", awards=list(AWARDS.values()), v=v)
 
 @app.post("/admin/user_award")
+@app.post("/api/v2/admin/user_award")
 @auth_required
 @validate_formkey
 def admin_userawards_post(v):

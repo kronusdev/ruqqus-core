@@ -522,7 +522,7 @@ class User(Base, Stndrd, Age_times):
 		data['hide_offensive'] = self.hide_offensive
 		data['filter_nsfw'] = self.filter_nsfw
 		data['show_nsfl'] = self.show_nsfl
-		data['is_nofollow']  self.is_nofollow
+		data['is_nofollow'] = self.is_nofollow
 		data['filter_words'] = self.filter_words
 		data['formkey'] = self.formkey
 		data['follower_count'] = len(self.followers)

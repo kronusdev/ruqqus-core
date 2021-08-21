@@ -503,8 +503,30 @@ class User(Base, Stndrd, Age_times):
 		data["badges"] = [x.json_core for x in self.badges]
 		data['coins'] = int(self.coins)
 		data['post_count'] = self.post_count
+		data['post_rep'] = int(self.karma)
 		data['comment_count'] = self.comment_count
+		data['comment_rep'] = int(self.comment_karma)
+		data['created_date'] = self.created_date
+		data['permalink'] = self.permalink
 
+		return data
+
+	@property
+	def auth_json(self):
+		data = self.json
+		data['title'] = self.title.json if self.title else None
+		data['over_18'] = self.over_18
+		data['admin_level'] = self.admin_level
+		data['email'] =  self.email if self.email else None
+		data['real_id'] = self.real_id if self.real_id else None
+		data['hide_offensive'] = self.hide_offensive
+		data['filter_nsfw'] = self.filter_nsfw
+		data['show_nsfl'] = self.show_nsfl
+		data['is_nofollow']  self.is_nofollow
+		data['filter_words'] = self.filter_words
+		data['formkey'] = self.formkey
+		data['follower_count'] = len(self.followers)
+		data['referral_count'] = self.referral_count
 		return data
 
 	def ban(self, admin=None, reason=None, days=0):

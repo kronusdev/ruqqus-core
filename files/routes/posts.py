@@ -51,19 +51,69 @@ def submit_get(v):
 @app.get("/api/v2/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
-	try: pid = int(pid)
-	except Exception as e: pass
 
-	if v: defaultsortingcomments = v.defaultsortingcomments
-	else: defaultsortingcomments = "top"
-	sort=request.args.get("sort", defaultsortingcomments)
-
-	try: pid = int(pid)
+	try:
+		pid = int(pid)
 	except:
-		try: pid = int(pid, 36)
-		except: abort(404)
+		try:
+			pid = int(pid, 36)
+		except:
+			abort(404)
 
 	post = get_post(pid, v=v)
+
+	post.views += 1
+	g.db.add(post)
+	g.db.commit()
+	if isinstance(session.get('over_18', 0), dict): session["over_18"] = 0
+	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
+		return {"error":"Must be 18+ to view"}, 451
+
+	return post.json
+
+
+# helper func that groups comments
+def tree_comments(comments, post_fullname):
+
+	_tree = []
+	pinned_comment = []
+	index = {}
+	for c in comments:
+
+		if c.is_pinned and c.parent_fullname==self.fullname:
+			pinned_comment+=[c]
+			continue
+
+		if c.parent_fullname in index:
+			index[c.parent_fullname].append(c)
+		else:
+			index[c.parent_fullname] = [c]
+
+	for c in comments:
+		c.__dict__["replies"] = index.get(c.fullname, [])
+
+	_tree = pinned_comment + index.get(post_fullname, [])
+
+	return [x.json_core for x in _tree]
+
+
+@app.get("/api/v2/post/<pid>/comments")
+@auth_desired
+def get_post_comments(pid, v=None):
+
+	post = get_post(pid, v=v)
+
+	if not post:
+		abort(404)
+
+	if v:
+		defaultsortingcomments = v.defaultsortingcomments
+	else:
+		defaultsortingcomments = "top"
+
+	sort = request.args.get("sort", defaultsortingcomments)
+
+	_comments = []
 
 	if v:
 		votes = g.db.query(CommentVote).filter_by(user_id=v.id).subquery()
@@ -97,55 +147,49 @@ def post_id(pid, anything=None, v=None):
 			isouter=True
 		)
 
-		if sort == "top":
-			comments = sorted(comments.all(), key=lambda x: x[0].score, reverse=True)
-		elif sort == "bottom":
-			comments = sorted(comments.all(), key=lambda x: x[0].score)
-		elif sort == "new":
-			comments = comments.order_by(Comment.created_utc.desc()).all()
-		elif sort == "old":
-			comments = comments.order_by(Comment.created_utc.asc()).all()
-		elif sort == "controversial":
-			comments = sorted(comments.all(), key=lambda x: x[0].score_disputed, reverse=True)
-		elif sort == "random":
-			c = comments.all()
-			comments = random.sample(c, k=len(c))
-		else:
-			abort(422)
-
-		output = []
-		for c in comments:
-			comment = c[0]
-			if comment.author and comment.author.shadowbanned and not (v and v.id == comment.author_id): continue
-			comment._voted = c[1] or 0
-			comment._is_blocking = c[2] or 0
-			comment._is_blocked = c[3] or 0
-			output.append(comment)
-
-		post._preloaded_comments = output
-
 	else:
 		comments = g.db.query(
 			Comment
 		).filter(
 			Comment.parent_submission == post.id
 		)
+	
 
-		if sort == "top":
-			comments = sorted(comments.all(), key=lambda x: x.score, reverse=True)
-		elif sort == "bottom":
-			comments = sorted(comments.all(), key=lambda x: x.score)
-		elif sort == "new":
-			comments = comments.order_by(Comment.created_utc.desc()).all()
-		elif sort == "old":
-			comments = comments.order_by(Comment.created_utc.asc()).all()
-		elif sort == "controversial":
-			comments = sorted(comments.all(), key=lambda x: x.score_disputed, reverse=True)
-		elif sort == "random":
-			c = comments.all()
-			comments = random.sample(c, k=len(c))
-		else:
-			abort(422)
+	if sort == "top":
+		comments = sorted(comments.all(), key=lambda x: x.score, reverse=True)
+	elif sort == "bottom":
+		comments = sorted(comments.all(), key=lambda x: x.score)
+	elif sort == "new":
+		comments = comments.order_by(Comment.created_utc.desc()).all()
+	elif sort == "old":
+		comments = comments.order_by(Comment.created_utc.asc()).all()
+	elif sort == "controversial":
+		comments = sorted(comments.all(), key=lambda x: x.score_disputed, reverse=True)
+	elif sort == "random":
+		c = comments.all()
+		comments = random.sample(c, k=len(c))
+	else:
+		abort(422)
+
+	if v:
+
+		output = []
+
+		for c in comments:
+			comment = c[0]
+
+			if comment.author and comment.author.shadowbanned and not (v and v.id == comment.author_id):
+				continue
+
+			comment._voted = c[1] or 0
+			comment._is_blocking = c[2] or 0
+			comment._is_blocked = c[3] or 0
+
+			output.append(comment)
+
+		_comments = output
+
+	else:
 
 		if random.random() < 0.1:
 			for comment in comments:
@@ -155,58 +199,22 @@ def post_id(pid, anything=None, v=None):
 						vote_type=random.choice([-1, 1]),
 						comment_id=comment.id)
 					g.db.add(vote)
-					try: g.db.flush()
-					except: g.db.rollback()
+
+					try:
+						g.db.flush()
+					except:
+						g.db.rollback()
+
 					comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
 					g.db.add(comment)
 
-		post._preloaded_comments = [x for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
+		_comments = [x for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
+
+	return jsonify(tree_comments(_comments, post_fullname=post.fullname))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	post.views += 1
-	g.db.add(post)
-	g.db.commit()
-	if isinstance(session.get('over_18', 0), dict): session["over_18"] = 0
-	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
-		if request.headers.get("Authorization"): return {"error":"Must be 18+ to view"}, 451
-		else: return render_template("errors/nsfw.html", v=v)
-
-
-	post.tree_comments()
-
-	if request.headers.get("Authorization"): return post.json
-	else: return post.rendered_page(v=v, sort=sort)
-
-
-@app.post("/edit_post/<pid>")
-@app.post("/api/v2/post/<pid>/edit_post/")
+#@app.post("/edit_post/<pid>")
+@app.patch("/api/v2/post/<pid>")
 @is_not_banned
 @validate_formkey
 def edit_post(pid, v):

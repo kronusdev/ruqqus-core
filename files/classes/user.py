@@ -503,9 +503,9 @@ class User(Base, Stndrd, Age_times):
 		#data["badges"] = [x.json_core for x in self.badges]
 		data['coins'] = int(self.coins)
 		data['post_count'] = self.post_count
-		data['post_rep'] = int(self.karma)
+		#data['post_rep'] = int(self.karma)
 		data['comment_count'] = self.comment_count
-		data['comment_rep'] = int(self.comment_karma)
+		#data['comment_rep'] = int(self.comment_karma)
 		data['created_date'] = self.created_date
 		data['permalink'] = self.permalink
 

@@ -4,6 +4,7 @@ gevent.monkey.patch_all()
 from os import environ, path
 import secrets
 from flask import *
+from flask_cors import CORS
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_compress import Compress
@@ -94,6 +95,10 @@ app.config["TENOR_KEY"]=environ.get("TENOR_KEY",'').strip()
 Markdown(app)
 cache = Cache(app)
 Compress(app)
+
+CORS(app, resources = {
+    r'/api/v2/*': {'origins': '*'}
+})
 
 app.config["RATELIMIT_STORAGE_URL"] = environ.get("REDIS_URL").strip()
 app.config["RATELIMIT_KEY_PREFIX"] = "flask_limiting_"
@@ -261,7 +266,8 @@ def after_request(response):
 
 	response.headers.add('Access-Control-Allow-Headers', "Origin, X-Requested-With, Content-Type, Accept, x-auth")
 	
-	response.headers.add("Access-Control-Allow-Origin", app.config["SERVER_NAME"])
+	if not request.path.startswith('/api/v2'):
+		response.headers.add("Access-Control-Allow-Origin", app.config["SERVER_NAME"])
 
 	response.headers.add("Strict-Transport-Security", "max-age=31536000")
 	response.headers.add("Referrer-Policy", "same-origin")

@@ -507,7 +507,7 @@ class User(Base, Stndrd, Age_times):
 		data['comment_count'] = self.comment_count
 		#data['comment_rep'] = int(self.comment_karma)
 		data['created_date'] = self.created_date
-		data['permalink'] = self.permalink
+		#data['permalink'] = self.permalink
 
 		return data
 

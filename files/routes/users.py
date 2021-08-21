@@ -347,6 +347,8 @@ def u_username(username, v=None):
 
 
 @app.get("/@<username>/comments")
+@app.get("/api/v2/account/<username>/comments")
+@app.get("/v2/account/<username>/comments")
 @auth_desired
 def u_username_comments(username, v=None):
 	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
@@ -359,16 +361,13 @@ def u_username_comments(username, v=None):
 
 	# check for wrong cases
 
-	if username != user.username: return redirect(f'{user.url}/comments')
+	if username != user.username: return redirect(f'v2/account/{user.url}/comments')
 
 	u = user
 
 	if u.reserved:
-		if request.headers.get("Authorization"): return {"error": f"That username is reserved for: {u.reserved}"}
-		else: return render_template("userpage_reserved.html",
-												u=u,
-												v=v,
-												time=time.time())
+		return {"error": f"That username is reserved for: {u.reserved}", "time": time.time()}
+
 
 
 	if u.is_private and (not v or (v.id != u.id and v.admin_level < 3)):
@@ -385,25 +384,13 @@ def u_username_comments(username, v=None):
 		# 		paidrent = True
 
 		# if not paidrent:
-		if request.headers.get("Authorization"): return {"error": "That userpage is private"}
-		else: return render_template("userpage_private.html",
-													u=u,
-													v=v,
-													time=time.time())
+		return {"error": "That userpage is private", "time": time.time()},
 
 	if u.is_blocking and (not v or v.admin_level < 3):
-		if request.headers.get("Authorization"): return {"error": f"You are blocking @{u.username}."}
-		else: return render_template("userpage_blocking.html",
-													u=u,
-													v=v,
-													time=time.time())
+		return {"error": f"You are blocking @{u.username}.", "time":time.time()}, 403
 
 	if u.is_blocked and (not v or v.admin_level < 3):
-		if request.headers.get("Authorization"): return {"error": "This person is blocking you."}
-		else: return render_template("userpage_blocked.html",
-													u=u,
-													v=v,
-													time=time.time())
+		return {"error": "This person is blocking you.", "time":time.time()}, 403
 
 
 	page = int(request.args.get("page", "1"))
@@ -425,24 +412,29 @@ def u_username_comments(username, v=None):
 
 	is_following = (v and user.has_follower(v))
 
-	if request.headers.get("Authorization"): return {"data": [c.json for c in listing]}
-	else: return render_template("userpage_comments.html", u=user, v=v, listing=listing, page=page, sort=sort, t=t,next_exists=next_exists, is_following=is_following, standalone=True, time=time.time())
+	return {"listing":[c.json for c in listing], "page":page,"sort":sort, "t":t, "next_exists":next_exists,
+				  "is_following":is_following, "standalone": True, "time":time.time()}
+
 
 @app.get("/@<username>/info")
+@app.get("/api/v2/account/@<username>/info")
+@app.get("/v2/account/@<username>/info")
 @auth_desired
 def u_username_info(username, v=None):
 
-	user=get_user(username, v=v)
+	user = get_user(username, v=v)
 
 	if user.is_blocking:
-		return {"error": "You're blocking this user."}, 401
+		return jsonify({"error": "You're blocking this user."}), 401
 	elif user.is_blocked:
-		return {"error": "This user is blocking you."}, 403
+		return jsonify({"error": "This user is blocking you."}), 403
 
-	return user.json
+	return jsonify(user.json)
 
 
 @app.post("/follow/<username>")
+@app.post("/api/v2/account/<username>/follow")
+@app.post("/v2/account/<username>/follow")
 @auth_required
 def follow_user(username, v):
 
@@ -465,6 +457,8 @@ def follow_user(username, v):
 
 
 @app.post("/unfollow/<username>")
+@app.post("/api/v2/account/<username>/unfollow")
+@app.post("/v2/account/<username>/unfollow")
 @auth_required
 def unfollow_user(username, v):
 
@@ -496,6 +490,8 @@ def user_profile_uid(id):
 
 
 @app.get("/@<username>/saved/posts")
+@app.get("/api/v2/account/<username>/saved/posts")
+@app.get("/v2/account/<username>/saved/posts")
 @auth_required
 def saved_posts(v, username):
 
@@ -508,19 +504,12 @@ def saved_posts(v, username):
 	ids=ids[:25]
 
 	listing = get_posts(ids, v=v)
-
-	if request.headers.get("Authorization"): return {"data": [x.json for x in listing]}
-	else: return render_template("userpage.html",
-											u=v,
-											v=v,
-											listing=listing,
-											page=page,
-											next_exists=next_exists,
-											time=time.time(),
-											)
+	return {"listing":[x.json for x in listing], "page":page, "next_exists":next_exists, "time":time.time()}
 
 
 @app.get("/@<username>/saved/comments")
+@app.get("/api/v2/account/<username>/saved/comments")
+@app.get("/v2/account/<username>/saved/comments")
 @auth_required
 def saved_comments(v, username):
 
@@ -534,13 +523,5 @@ def saved_comments(v, username):
 
 	listing = get_comments(ids, v=v)
 
-
-	if request.headers.get("Authorization"): return {"data": [x.json for x in listing]}
-	else: return render_template("userpage_comments.html",
-											u=v,
-											v=v,
-											listing=listing,
-											page=page,
-											next_exists=next_exists,
-											standalone=True,
-											time=time.time())
+	return {"listing":[x.json for x in listing], "page":page,
+			"next_exists" : next_exists, "standalone":True, "time":time.time()}

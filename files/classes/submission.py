@@ -20,6 +20,8 @@ class SubmissionAux(Base):
 	id = Column(BigInteger, ForeignKey("submissions.id"))
 	title = Column(String(500))
 	title_html = Column(String(500))
+	meta_title = Column(String(500))
+	meta_description = Column(String(500))
 	url = Column(String(500))
 	body = Column(String(10000), default="")
 	body_html = Column(String(20000), default="")

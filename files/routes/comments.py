@@ -23,54 +23,84 @@ site = environ.get("DOMAIN").strip()
 # 		secret_key=PUSHER_KEY,
 # )
 
+def tree_comments(comments, top_comment):
+
+	_tree = []
+	index = {}
+	for c in comments:
+
+		print(c.fullname)
+
+		if c.parent_fullname in index:
+			index[c.parent_fullname].append(c)
+		else:
+			index[c.parent_fullname] = [c]
+
+	for c in comments:
+		c.__dict__["replies"] = index.get(c.fullname, [])
+
+	_tree = [top_comment]
+
+	return [x.json_core for x in _tree]
+
+
 @app.get("/comment/<cid>")
 @app.get("/post/<pid>/<anything>/<cid>")
+@app.get("/api/v2/comment/<cid>")
+@app.get("/api/v2/post/<pid>/comments/<cid>")
 @auth_desired
 def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
-
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
 	
-	try: cid = int(cid)
+	try:
+		cid = int(cid)
 	except:
-		try: cid = int(cid, 36)
-		except: abort(404)
+		try:
+			cid = int(cid, 36)
+		except:
+			abort(404)
 
 	comment = get_comment(cid, v=v)
 	
-	if not comment.parent_submission and not (v and v.admin_level == 6): abort(403)
-	
-	if not pid:
-		if comment.parent_submission: pid = comment.parent_submission
-		else: pid = 6489
-	
-	try: pid = int(pid)
-	except: abort(404)
-	
-	post = get_post(pid, v=v)
+	if pid:
+		try:
+			pid = int(pid)
+		except:
+			abort(404)
 		
-	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
-		if request.headers.get("Authorization"): return {'error': f'This content is not suitable for some users and situations.'}
-		else: render_template("errors/nsfw.html", v=v)
-
-	post._preloaded_comments = [comment]
+		post = get_post(pid, v=v)
+			
+		if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
+			return {'error': f'This content is not suitable for some users and situations.'}
 
 	# context improver
-	try: context = int(request.args.get("context", 0))
-	except: context = 0
+	try:
+		context = int(request.args.get("context", 0))
+	except:
+		context = 0
+
 	comment_info = comment
 	c = comment
+
+	_comments = []
+
 	while context > 0 and c.level > 1:
 
 		parent = get_comment(c.parent_comment_id, v=v)
 
-		post._preloaded_comments += [parent]
+		_comments += [parent]
 
 		c = parent
 		context -= 1
+
 	top_comment = c
 
-	if v: defaultsortingcomments = v.defaultsortingcomments
-	else: defaultsortingcomments = "top"
+	_comments += [comment]
+
+	if v:
+		defaultsortingcomments = v.defaultsortingcomments
+	else:
+		defaultsortingcomments = "top"
+
 	sort=request.args.get("sort", defaultsortingcomments)
 
 	# children comments
@@ -163,17 +193,11 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 				abort(422)
 
 
-		post._preloaded_comments += output
+		_comments += output
 
 		current_ids = [x.id for x in output]
 
-
-	post.tree_comments()
-
-	post.replies=[top_comment]
-
-	if request.headers.get("Authorization"): return top_comment.json
-	else: return post.rendered_page(v=v, sort=sort, comment=top_comment, comment_info=comment_info)
+	return jsonify(tree_comments(_comments, top_comment))
 
 
 @app.post("/comment")

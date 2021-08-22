@@ -114,7 +114,7 @@ def limiter_key_func(): return request.remote_addr
 limiter = Limiter(
 	app,
 	key_func=limiter_key_func,
-	default_limits=["100/minute"],
+	#default_limits=["100/minute"],
 	headers_enabled=True,
 	strategy="fixed-window"
 )

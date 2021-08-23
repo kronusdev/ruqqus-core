@@ -72,9 +72,9 @@ def login_post():
 	"""if account.admin_level <= 3:
 		if account.admin_level != -1 and account.admin_level != 4:
 			return jsonify({"status_code": 401, "error": "Ruqqus-Vue is currently closed access."})"""
-	if account.is_deleted:
+	"""if account.is_deleted:
 		time.sleep(random.uniform(0, 2))
-		return jsonify({"status_code": 400, "error": "account deleted"})
+		return jsonify({"status_code": 400, "error": "account deleted"})"""
 
 
 

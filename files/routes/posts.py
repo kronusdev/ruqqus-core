@@ -49,6 +49,8 @@ def submit_get(v):
 @app.get("/post/<pid>/<anything>")
 @app.get("/api/v2/post/<pid>")
 @app.get("/api/v2/post/<pid>/<anything>")
+@app.get("/v2/post/<pid>")
+@app.get("/v2/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
 

@@ -519,7 +519,7 @@ class User(Base, Stndrd, Age_times):
 		data['admin_level'] = self.admin_level
 		data['email'] = self.email if self.email else None
 		#data['real_id'] = self.real_id if self.real_id else None
-		data['hide_offensive'] = self.hide_offensive
+		#data['hide_offensive'] = self.hide_offensive
 		#data['filter_nsfw'] = self.filter_nsfw
 		#data['show_nsfl'] = self.show_nsfl
 		data['is_nofollow'] = self.is_nofollow

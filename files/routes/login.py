@@ -116,7 +116,7 @@ def login_post():
 
 			hash = generate_hash(f"{account.id}+{time}+2fachallenge")
 			return jsonify({"status_code": 201,
-							"v": account.vue_json,
+							"v": account.auth_json,
 							"time": now,
 							"hash": hash,
 							"failed": True})
@@ -126,7 +126,7 @@ def login_post():
 			g.db.add(account)
 			g.db.commit()
 
-			return jsonify({"v": account.vue_json,
+			return jsonify({"v": account.auth_json,
 							"time": now,
 							"hash": hash,
 							"failed": True}), 201

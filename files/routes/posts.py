@@ -82,7 +82,7 @@ def tree_comments(comments, post_fullname):
 	index = {}
 	for c in comments:
 
-		if c.is_pinned and c.parent_fullname==self.fullname:
+		if c.is_pinned and c.parent_fullname==post_fullname:
 			pinned_comment+=[c]
 			continue
 

@@ -212,7 +212,7 @@ def get_post_comments(pid, v=None):
 
 		_comments = [x for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
 
-	return jsonify(tree_comments(_comments, post_fullname=post.fullname))
+	return jsonify({"results": tree_comments(_comments, post_fullname=post.fullname)})
 
 
 #@app.post("/edit_post/<pid>")

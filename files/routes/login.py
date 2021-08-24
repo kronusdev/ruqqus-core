@@ -143,11 +143,9 @@ def login_post():
 	session.permanent = True
 
 	check_for_alts(account.id)
-
-	account.refresh_selfset_badges()
-
-	# check for previous page
-	print(f"success, returning data : {account.vue_json}")
+	###
+	#account.refresh_selfset_badges()
+	###
 	return jsonify({"v": account.auth_json}), 200
 
 @app.get("/me")

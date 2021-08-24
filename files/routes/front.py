@@ -210,7 +210,7 @@ def front_all(v):
 	# check if ids exist
 	posts = get_posts(ids, v=v)
 
-	return jsonify([x.json for x in posts])
+	return jsonify({"results": [x.json for x in posts]})
 
 
 @cache.memoize(timeout=1500)

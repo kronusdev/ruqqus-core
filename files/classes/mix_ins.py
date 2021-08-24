@@ -74,6 +74,20 @@ class Age_times:
 			return f"{years}yr ago"
 
 	@property
+	@lazy
+	def age_years(self):
+
+		now = time.gmtime()
+		ctd = time.gmtime(self.created_utc)
+
+		years = now.tm_year - ctd.tm_year
+
+		if now.tm_yday < ctd.tm_yday:
+			years -= 1
+
+		return years
+
+	@property
 	def edited_string(self):
 
 		if not self.edited_utc:

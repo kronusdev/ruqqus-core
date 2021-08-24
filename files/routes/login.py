@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 from files.mail import *
 from files.__main__ import app, limiter
+from files.helpers.security import safe_compare
 
 valid_username_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$")
 valid_password_regex = re.compile("^.{8,100}$")
@@ -115,7 +116,7 @@ def login_post():
 
 			hash = generate_hash(f"{account.id}+{time}+2fachallenge")
 			return jsonify({"status_code": 201,
-							"v": account.vue_json,
+							"v": account.auth_json,
 							"time": now,
 							"hash": hash,
 							"failed": True})
@@ -125,7 +126,7 @@ def login_post():
 			g.db.add(account)
 			g.db.commit()
 
-			return jsonify({"v": account.vue_json,
+			return jsonify({"v": account.auth_json,
 							"time": now,
 							"hash": hash,
 							"failed": True}), 201
@@ -142,11 +143,9 @@ def login_post():
 	session.permanent = True
 
 	check_for_alts(account.id)
-
-	account.refresh_selfset_badges()
-
-	# check for previous page
-	print(f"success, returning data : {account.vue_json}")
+	###
+	#account.refresh_selfset_badges()
+	###
 	return jsonify({"v": account.auth_json}), 200
 
 @app.get("/me")

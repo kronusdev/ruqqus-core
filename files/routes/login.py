@@ -53,6 +53,7 @@ def check_for_alts(current_id):
 
 @app.post("/login")
 @app.post("/api/vue/login")
+@app.post("/api/v2/login")
 @limiter.limit("6/minute")
 def login_post():
 	username = request.form.get("username")
@@ -221,6 +222,7 @@ def sign_up_get(v):
 						   )
 
 
+@app.post("/api/v2/signup")
 @app.post("/signup")
 @auth_desired
 def sign_up_post(v):

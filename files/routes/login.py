@@ -53,6 +53,7 @@ def check_for_alts(current_id):
 
 @app.post("/login")
 @app.post("/api/vue/login")
+@app.post("/api/v2/login")
 @limiter.limit("6/minute")
 def login_post():
 	username = request.form.get("username")
@@ -222,6 +223,7 @@ def sign_up_get(v):
 
 
 @app.post("/signup")
+@app.post("/api/v2/signup")
 @auth_desired
 def sign_up_post(v):
 	with open('./disablesignups', 'r') as f:
@@ -237,16 +239,16 @@ def sign_up_post(v):
 	form_timestamp = request.form.get("now", '0')
 	form_formkey = request.form.get("formkey", "none")
 
-	submitted_token = session.get("signup_token", "")
-	if not submitted_token:
-		abort(400)
+	# submitted_token = session.get("signup_token", "")
+	# if not submitted_token:
+	# 	abort(400)
 
-	correct_formkey_hashstr = form_timestamp + submitted_token + agent
+	# correct_formkey_hashstr = form_timestamp + submitted_token + agent
 
-	correct_formkey = hmac.new(key=bytes(environ.get("MASTER_KEY"), "utf-16"),
-								msg=bytes(correct_formkey_hashstr, "utf-16"),
-								digestmod='md5'
-							   ).hexdigest()
+	# correct_formkey = hmac.new(key=bytes(environ.get("MASTER_KEY"), "utf-16"),
+	# 							msg=bytes(correct_formkey_hashstr, "utf-16"),
+	# 							digestmod='md5'
+	# 						   ).hexdigest()
 
 	now = int(time.time())
 
@@ -263,15 +265,15 @@ def sign_up_post(v):
 			if user:
 				args["ref"] = user.username
 
-		return redirect(f"/signup?{urlencode(args)}")
+		return json.dumps(args)
 
 	if now - int(form_timestamp) < 5:
 		#print(f"signup fail - {username } - too fast")
 		return new_signup("There was a problem. Please try again.")
 
-	if not hmac.compare_digest(correct_formkey, form_formkey):
-		#print(f"signup fail - {username } - mismatched formkeys")
-		return new_signup("There was a problem. Please try again.")
+	# if not hmac.compare_digest(correct_formkey, form_formkey):
+	# 	#print(f"signup fail - {username } - mismatched formkeys")
+	# 	return new_signup("There was a problem. Please try again.")
 
 	# check for matched passwords
 	if not request.form.get(
@@ -326,7 +328,7 @@ def sign_up_post(v):
 			return new_signup("Unable to verify captcha [2].")
 
 	# kill tokens
-	session.pop("signup_token")
+	# session.pop("signup_token")
 
 	# get referral
 	ref_id = int(request.form.get("referred_by", 0))

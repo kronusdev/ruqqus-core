@@ -1,6 +1,6 @@
 from flask import render_template, g
 from sqlalchemy import *
-from sqlalchemy.orm import relationship, deferred
+from sqlalchemy.orm import *
 import re, random
 import time
 from urllib.parse import urlparse
@@ -215,37 +215,41 @@ class Submission(Base, Stndrd, Age_times, Scores):
 		else: return f"https://{site}/assets/images/default_thumb_link.png"
 
 	@property
-
 	def json_raw(self):
 		flags = {}
 		for f in self.flags: flags[f.user.username] = f.reason
 
-		data = {'author_name': self.author.username,
-				'permalink': self.permalink,
-				'is_banned': bool(self.is_banned),
-				'deleted_utc': self.deleted_utc,
-				'created_utc': self.created_utc,
-				'id': self.id,
-				'title': self.title,
-				'is_nsfw': self.over_18,
-				'is_bot': self.is_bot,
-				'thumb_url': self.thumb_url,
-				'domain': self.domain,
-				'url': self.url,
+		data = {'authorName': self.author.username,
 				'body': self.body,
-				'body_html': self.body_html,
-				'created_utc': self.created_utc,
-				'edited_utc': self.edited_utc or 0,
-				'comment_count': self.comment_count,
-				'score': self.score,
-				'upvotes': self.upvotes,
-				'stickied': self.stickied,
-				'distinguish_level': self.distinguish_level,
-				#'award_count': self.award_count,
-				'meta_title': self.meta_title,
-				'meta_description': self.meta_description,
-				'voted': self.voted,
+				'bodyHTML': self.body_html,
+				'commentCount': self.comment_count,
+				'createdUTC': self.created_utc,
+				'deletedUTC': self.deleted_utc,
+				'editedUTC': self.edited_utc or 0,
+				'distinguishLevel': self.distinguish_level,
+				'domain': self.domain,
 				'flags': flags,
+				'id': self.id,
+				'isBanned': bool(self.is_banned),
+				'isBot': self.is_bot,
+				'isNSFW': self.over_18,
+				'meta': {
+					'title': self.meta_title,
+					'description': self.meta_description,
+				},
+				'permalink': self.permalink,
+				'score': self.score,
+				'isPinned': self.stickied,
+				'thumbnail':{
+					'src': self.thumb_url,
+					'hash': self.thumb_blurhash,
+				},
+				'title': self.title,
+				'upvotes': self.upvotes,
+				'url': self.url,
+				#'award_count': self.award_count,
+				'voted': self.voted,
+				'isSaved': self.is_saved
 				}
 
 		if self.ban_reason:
@@ -274,8 +278,8 @@ class Submission(Base, Stndrd, Age_times, Scores):
 
 		return self.json_raw
 
-	@property
-	def json(self):
+	@lazy
+	def json(self, v=None):
 
 		data=self.json_core
 
@@ -291,6 +295,8 @@ class Submission(Base, Stndrd, Age_times, Scores):
 
 		if "_voted" in self.__dict__:
 			data["voted"] = self._voted
+
+		if v: data["isSaved"]=self.is_saved(v)
 
 		return data
 
@@ -422,6 +428,11 @@ class Submission(Base, Stndrd, Age_times, Scores):
 	def is_image(self):
 		if self.url: return self.url.lower().endswith('.jpg') or self.url.lower().endswith('.png') or self.url.lower().endswith('.gif') or self.url.lower().endswith('.jpeg') or self.url.lower().endswith('?maxwidth=9999') or self.url.lower().endswith('?maxwidth=8888')
 		else: return False
+
+	@lazy
+	def is_saved(self, v):
+		if not v: return False
+		return bool(g.db.query(SaveRelationship).filter((SaveRelationship.submission_id == self.id) and (SaveRelationship.user_id == v.id) ).all())
 
 	@property
 	@lazy

@@ -223,7 +223,7 @@ def searchposts(v):
 		domain=None
 		domain_obj=None
 
-	if request.headers.get("Authorization"): return {"data":[x.json for x in posts]}
+	if request.headers.get("Authorization"): return {"data":[x.json(v) for x in posts]}
 	else: return render_template("search.html",
 						   v=v,
 						   query=query,

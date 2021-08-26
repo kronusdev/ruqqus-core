@@ -210,7 +210,7 @@ def front_all(v):
 	# check if ids exist
 	posts = get_posts(ids, v=v)
 
-	return jsonify({"results": [x.json for x in posts]})
+	return jsonify({"results": [x.json(v) for x in posts]})
 
 
 @cache.memoize(timeout=1500)
@@ -313,7 +313,7 @@ def changelog(v):
 	# check if ids exist
 	posts = get_posts(ids, v=v)
 
-	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
+	if request.headers.get("Authorization"): return {"data": [x.json(v) for x in posts], "next_exists": next_exists}
 	else: return render_template("changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, time=time.time())
 
 

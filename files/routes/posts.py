@@ -71,7 +71,7 @@ def post_id(pid, anything=None, v=None):
 	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
 		return {"error":"Must be 18+ to view"}, 451
 
-	return post.json
+	return post.json(v)
 
 
 # helper func that groups comments
@@ -938,8 +938,7 @@ def submit_post(v):
 
 	cache.delete_memoized(frontlist)
 
-	if request.headers.get("Authorization"): return new_post.json
-	else: return redirect(new_post.permalink)
+	return new_post.json(v)
 
 
 @app.post("/delete_post/<pid>")

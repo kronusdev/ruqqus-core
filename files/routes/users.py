@@ -317,7 +317,7 @@ def u_username(username, v=None):
 	listing = get_posts(ids, v=v)
 
 	if u.unban_utc:
-		if request.headers.get("Authorization"): {"data": [x.json for x in listing]}
+		if request.headers.get("Authorization"): {"data": [x.json(v) for x in listing]}
 		else: return render_template("userpage.html",
 												unban=u.unban_string,
 												u=u,
@@ -332,7 +332,7 @@ def u_username(username, v=None):
 
 
 
-	if request.headers.get("Authorization"): return {"data": [x.json for x in listing]}
+	if request.headers.get("Authorization"): return {"data": [x.json(v) for x in listing]}
 	else: return render_template("userpage.html",
 									u=u,
 									v=v,
@@ -504,7 +504,7 @@ def saved_posts(v, username):
 	ids=ids[:25]
 
 	listing = get_posts(ids, v=v)
-	return {"listing":[x.json for x in listing], "page":page, "next_exists":next_exists, "time":time.time()}
+	return {"listing":[x.json(v) for x in listing], "page":page, "next_exists":next_exists, "time":time.time()}
 
 
 @app.get("/@<username>/saved/comments")

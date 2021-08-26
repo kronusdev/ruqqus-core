@@ -170,7 +170,8 @@ def frontlist(v=None, sort="hot", page=1,t="all", ids_only=True, filter_words=''
 		return posts
 	return posts
 
-@app.get("/")
+@app.get("/api/v2/feed/front")
+@app.get("/v2/feed/front")
 @auth_desired
 def front_all(v):
 	if(v):
@@ -209,8 +210,8 @@ def front_all(v):
 	# check if ids exist
 	posts = get_posts(ids, v=v)
 
-	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	else: return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, time=time.time())
+	return jsonify({"results": [x.json(v) for x in posts]})
+
 
 @cache.memoize(timeout=1500)
 def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
@@ -312,7 +313,7 @@ def changelog(v):
 	# check if ids exist
 	posts = get_posts(ids, v=v)
 
-	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
+	if request.headers.get("Authorization"): return {"data": [x.json(v) for x in posts], "next_exists": next_exists}
 	else: return render_template("changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, time=time.time())
 
 

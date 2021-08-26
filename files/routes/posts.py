@@ -49,6 +49,8 @@ def submit_get(v):
 @app.get("/post/<pid>/<anything>")
 @app.get("/api/v2/post/<pid>")
 @app.get("/api/v2/post/<pid>/<anything>")
+@app.get("/v2/post/<pid>")
+@app.get("/v2/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
 
@@ -69,7 +71,7 @@ def post_id(pid, anything=None, v=None):
 	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
 		return {"error":"Must be 18+ to view"}, 451
 
-	return post.json
+	return post.json(v)
 
 
 # helper func that groups comments
@@ -80,7 +82,7 @@ def tree_comments(comments, post_fullname):
 	index = {}
 	for c in comments:
 
-		if c.is_pinned and c.parent_fullname==self.fullname:
+		if c.is_pinned and c.parent_fullname==post_fullname:
 			pinned_comment+=[c]
 			continue
 
@@ -210,7 +212,7 @@ def get_post_comments(pid, v=None):
 
 		_comments = [x for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
 
-	return jsonify(tree_comments(_comments, post_fullname=post.fullname))
+	return jsonify({"results": tree_comments(_comments, post_fullname=post.fullname)})
 
 
 #@app.post("/edit_post/<pid>")
@@ -936,8 +938,7 @@ def submit_post(v):
 
 	cache.delete_memoized(frontlist)
 
-	if request.headers.get("Authorization"): return new_post.json
-	else: return redirect(new_post.permalink)
+	return new_post.json(v)
 
 
 @app.post("/delete_post/<pid>")

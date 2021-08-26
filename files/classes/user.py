@@ -156,6 +156,20 @@ class User(Base, Stndrd, Age_times):
 		x = pyotp.TOTP(self.mfa_secret)
 		return x.verify(token, valid_window=1)
 
+	def mfa_removal_code(self):
+
+		hashstr = f"{self.mfa_secret}+{self.id}+{self.original_username}"
+
+		hashstr = generate_hash(hashstr)
+
+		removal_code = base36encode(int(hashstr, 16))
+
+		# should be 25char long, left pad if needed
+		while len(removal_code) < 25:
+			removal_code = "0" + removal_code
+
+		return removal_code
+
 	@property
 	def age(self):
 		return int(time.time()) - self.created_utc
@@ -519,7 +533,7 @@ class User(Base, Stndrd, Age_times):
 		data['admin_level'] = self.admin_level
 		data['email'] = self.email if self.email else None
 		#data['real_id'] = self.real_id if self.real_id else None
-		data['hide_offensive'] = self.hide_offensive
+		#data['hide_offensive'] = self.hide_offensive
 		#data['filter_nsfw'] = self.filter_nsfw
 		#data['show_nsfl'] = self.show_nsfl
 		data['is_nofollow'] = self.is_nofollow

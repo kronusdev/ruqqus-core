@@ -14,18 +14,18 @@ services:
       - MASTER_KEY=${MASTER_KEY:-KTVciAUQFpFh2WdJ/oiHJlxl6FvzRZp8kYzAAv3l2OA=}
       - DOMAIN=localhost
       - IMGUR_KEY=vcxvdfgfc6r554etrgd
-      - SITE_NAME=VidyaCafe
+      - SITE_NAME=RuqqusInstance
       - CLOUDFLARE_ZONE=vcxvdfgfc6r554etrgd
       - CLOUDFLARE_KEY=vcxvdfgfc6r554etrgd
       - MAILGUN_KEY=vcxvdfgfc6r554etrgd
-      - MAILGUN_DOMAIN=asdf
+      - MAILGUN_DOMAIN=vcxvdfgfc6r554etrgd
       - FORCE_HTTPS=0
       - DISCORD_SERVER_ID=vcxvdfgfc6r554etrgd
       - DISCORD_CLIENT_ID=vcxvdfgfc6r554etrgd
       - DISCORD_CLIENT_SECRET=vcxvdfgfc6r554etrgd
       - DISCORD_BOT_TOKEN=vcxvdfgfc6r554etrgd
       - FACEBOOK_TOKEN=vcxvdfgfc6r554etrgd
-     #- HCAPTCHA_SITEKEY=vcxvdfgfc6r554etrgd
+      - HCAPTCHA_SITEKEY=vcxvdfgfc6r554etrgd
       - HCAPTCHA_SECRET=vcxvdfgfc6r554etrgd
       - YOUTUBE_KEY=vcxvdfgfc6r554etrgd
       - PUSHER_KEY=vcxvdfgfc6r554etrgd
@@ -36,7 +36,7 @@ services:
       - COMMENT_SPAM_COUNT_THRESHOLD=5
       - READ_ONLY=0
       - BOT_DISABLE=0
-      - COINS_NAME=Sips
+      - COINS_NAME=Rep
     links:
       - "redis"
       - "postgres"
